@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import logging
 from contextlib import asynccontextmanager
@@ -6,9 +7,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from aiogram import Bot, Dispatcher
 from aiogram.types import Update
-from aiogram.exceptions import TelegramAPIError
 
-# Load environment
+# ====================== CONFIG ======================
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -16,50 +16,47 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
 
 if not BOT_TOKEN or not WEBHOOK_URL:
-    raise ValueError("BOT_TOKEN and WEBHOOK_URL are required in .env file")
+    raise ValueError("BOT_TOKEN and WEBHOOK_URL must be set in .env")
 
-# Logging
+# ====================== LOGGING ======================
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# Initialize Bot and Dispatcher
+# ====================== BOT & DISPATCHER ======================
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Import handlers (they will register themselves)
-from bot.handlers import start, echo, real_estate, register_handlers
+# Register handlers
+from bot.handlers import register_handlers
 register_handlers(dp)
 
-# Lifespan for clean startup/shutdown
+# ====================== LIFESPAN ======================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("��� Bot starting...")
-    # Delete old webhook and set new one
+    logger.info("Starting Moscow Real Estate Bot...")
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_webhook(
         url=WEBHOOK_URL,
         secret_token=WEBHOOK_SECRET,
         drop_pending_updates=True
     )
-    logger.info(f"✅ Webhook successfully set to: {WEBHOOK_URL}")
+    logger.info(f"Webhook set successfully -> {WEBHOOK_URL}")
     yield
-    # Shutdown
-    logger.info("��� Shutting down bot...")
+    logger.info("Shutting down bot...")
     await bot.session.close()
 
-# Create FastAPI app
+# ====================== FASTAPI APP ======================
 app = FastAPI(title="Moscow Real Estate Bot", lifespan=lifespan)
 
-# Webhook endpoint
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
     if WEBHOOK_SECRET:
         secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
         if secret != WEBHOOK_SECRET:
-            logger.warning("Invalid webhook secret received")
+            logger.warning("Invalid webhook secret")
             raise HTTPException(status_code=403, detail="Forbidden")
 
     try:
