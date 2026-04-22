@@ -1,8 +1,4 @@
-from aiogram import Router, types
-from aiogram.filters import CommandStart
+from .start import router as start_router
 
-router = Router()
-
-@router.message(CommandStart())
-async def cmd_start(message: types.Message):
-    await message.answer("🏠 Добро пожаловать! Бот работает.")
+def register_handlers(dp):
+    dp.include_router(start_router)
