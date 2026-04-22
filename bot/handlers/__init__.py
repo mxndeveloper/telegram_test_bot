@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-from aiogram import Dispatcher
-from .start import router as start_router
-from .help import router as help_router
-from .echo import router as echo_router
-from .real_estate import router as real_estate_router
+from aiogram import Router, types
+from aiogram.filters import CommandStart
 
-def register_handlers(dp: Dispatcher):
-    dp.include_router(start_router)
-    dp.include_router(help_router)
-    dp.include_router(echo_router)
-    dp.include_router(real_estate_router)
+router = Router()
+
+@router.message(CommandStart())
+async def cmd_start(message: types.Message):
+    await message.answer("🏠 Добро пожаловать! Бот работает.")

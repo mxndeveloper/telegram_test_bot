@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
-from dotenv import load_dotenv
 
-# Load .env from the current working directory
-load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN") or os.getenv("API_TOKEN") or os.getenv("TELEGRAM_BOT_TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")  # this is the user-defined one that persists
 
-def get_env(key: str) -> str:
-    value = os.getenv(key)
-    if not value:
-        raise RuntimeError(f"❌ Missing secret: {key}. Please upload a .env file.")
-    return value
-
-BOT_TOKEN = get_env("BOT_TOKEN")
-WEBHOOK_URL = get_env("WEBHOOK_URL")
-WEBHOOK_SECRET = get_env("WEBHOOK_SECRET")
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN not found in environment")
+if not WEBHOOK_URL:
+    raise ValueError("WEBHOOK_URL not found in environment")
+if not WEBHOOK_SECRET:
+    # optional, but you set it, so it should exist
+    print("Warning: WEBHOOK_SECRET not set")

@@ -1,10 +1,6 @@
+.env
 venv/
 __pycache__/
 *.pyc
-*.pyo
-.env
-logs/*.log
-wheels/
-.vscode/
-.idea/
 .DS_Store
+.dockerignore
