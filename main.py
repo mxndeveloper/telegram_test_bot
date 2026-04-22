@@ -1,22 +1,12 @@
 # -*- coding: utf-8 -*-
-import os
 import logging
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
-
 from fastapi import FastAPI, Request, HTTPException
 from aiogram import Bot, Dispatcher
 from aiogram.types import Update
 
-# ====================== CONFIG ======================
-load_dotenv()
-
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
-
-if not BOT_TOKEN or not WEBHOOK_URL:
-    raise ValueError("BOT_TOKEN and WEBHOOK_URL must be set in .env")
+from bot.config import BOT_TOKEN, WEBHOOK_URL, WEBHOOK_SECRET
+from bot.handlers import register_handlers
 
 # ====================== LOGGING ======================
 logging.basicConfig(
@@ -28,9 +18,6 @@ logger = logging.getLogger(__name__)
 # ====================== BOT & DISPATCHER ======================
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-
-# Register handlers
-from bot.handlers import register_handlers
 register_handlers(dp)
 
 # ====================== LIFESPAN ======================
@@ -53,6 +40,7 @@ app = FastAPI(title="Moscow Real Estate Bot", lifespan=lifespan)
 
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
+    # Verify secret token
     if WEBHOOK_SECRET:
         secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token")
         if secret != WEBHOOK_SECRET:

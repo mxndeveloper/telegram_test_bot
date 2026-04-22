@@ -1,7 +1,6 @@
-from aiogram import Router
-from aiogram.types import Message
+# -*- coding: utf-8 -*-
+from aiogram import Router, types
 
 router = Router()
 
-# Future real estate handlers will go here
-# Example: search by price, district, show listings, etc.
+# You can add advanced real estate filters here later

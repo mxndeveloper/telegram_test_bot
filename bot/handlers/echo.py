@@ -1,9 +1,10 @@
-from aiogram import Router
-from aiogram.types import Message
+# -*- coding: utf-8 -*-
+from aiogram import Router, types, F
+from aiogram.filters import Command
 
 router = Router()
 
-@router.message()
-async def echo_handler(message: Message):
-    """Simple echo for testing. Will be replaced with real estate logic later."""
-    await message.answer(f"Вы написали: {message.text}\n\n(Это тестовый эхо-ответ)")
+# This will be overridden by start.py's catch‑all, but kept for consistency
+@router.message(F.text, ~Command("start", "help", "test"))
+async def echo_all(message: types.Message):
+    await message.reply(f"Эхо: {message.text}")
